@@ -11,7 +11,7 @@ body {
   min-width: 320px;
   background: #181818;
   color: #f4f1ea;
-  font-family: "Noto Sans JP", sans-serif;
+  font-family: Georgia, "Times New Roman", serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

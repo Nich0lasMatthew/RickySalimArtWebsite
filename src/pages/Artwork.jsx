@@ -92,7 +92,10 @@ export default function Artwork() {
           )}
 
           <div className="artwork-actions">
-            <Link to="/enquiry" className="btn btn-primary">
+            <Link
+              to={`/enquiry?artwork=${encodeURIComponent(artwork.title)}`}
+              className="btn btn-primary"
+            >
               Make an Enquiry
             </Link>
             <Link to="/gallery" className="btn btn-secondary">
