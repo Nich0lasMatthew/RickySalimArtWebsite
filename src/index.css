@@ -7,10 +7,30 @@ body,
   padding: 0;
 }
 
+:root {
+  --bg: #ffffff;
+  --bg-soft: #f7f6f3;
+  --text: #1a1a1a;
+  --text-muted: #5a564f;
+  --text-faint: #908b80;
+  --accent: #9c8455;
+  --border: rgba(0, 0, 0, 0.12);
+  --border-strong: rgba(0, 0, 0, 0.85);
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   min-width: 320px;
-  background: #181818;
-  color: #f4f1ea;
+  background: var(--bg);
+  color: var(--text);
   font-family: Georgia, "Times New Roman", serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

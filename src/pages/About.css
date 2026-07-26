@@ -1,19 +1,19 @@
 .about-page {
   min-height: 100vh;
   width: 100%;
-  background: #181818;
-  color: #f4f1ea;
+  background: var(--bg);
+  color: var(--text);
   font-family: Georgia, "Times New Roman", serif;
   padding-bottom: 100px;
 }
 
 .about-main {
-  max-width: 1200px;
+  max-width: 1300px;
   margin: 0 auto;
-  padding: 64px 60px 0;
+  padding: 72px 60px 0;
   display: grid;
   grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-  gap: 64px;
+  gap: 72px;
   align-items: start;
 }
 
@@ -24,12 +24,11 @@
 
 .about-photo {
   width: 100%;
-  border-radius: 14px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+  display: block;
 }
 
 .about-kicker {
-  color: #c9a96e;
+  color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 0.16em;
   font-size: 0.8rem;
@@ -43,62 +42,67 @@
 }
 
 .about-subtitle {
-  color: #c9a96e;
+  color: var(--accent);
   font-style: italic;
   font-size: 1.1rem;
   margin: 0 0 32px;
 }
 
 .about-body p {
-  color: #ddd6c9;
+  color: var(--text-muted);
   line-height: 1.85;
   font-size: 1.05rem;
   margin: 0 0 22px;
 }
 
 .about-body em {
-  color: #f4f1ea;
+  color: var(--text);
 }
 
 .about-body strong {
-  color: #c9a96e;
+  color: var(--text);
   font-weight: 600;
+  border-bottom: 1px solid var(--accent);
 }
 
 .about-actions {
   display: flex;
-  gap: 16px;
+  gap: 14px;
   flex-wrap: wrap;
   margin-top: 12px;
 }
 
 .btn {
   display: inline-block;
-  padding: 12px 22px;
-  border-radius: 999px;
+  padding: 12px 26px;
+  border-radius: 0;
   text-decoration: none;
-  font-size: 0.96rem;
+  font-size: 0.92rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   transition: all 0.2s ease;
 }
 
 .btn-primary {
-  background: #c9a96e;
-  color: #181818;
+  background: var(--text);
+  color: var(--bg);
   font-weight: 600;
+  border: 1px solid var(--text);
 }
 
 .btn-primary:hover {
-  background: #d8b980;
+  background: var(--bg);
+  color: var(--text);
 }
 
 .btn-secondary {
-  border: 1px solid rgba(244, 241, 234, 0.35);
-  color: #f4f1ea;
+  border: 1px solid var(--border-strong);
+  color: var(--text);
 }
 
 .btn-secondary:hover {
-  border-color: #c9a96e;
-  color: #c9a96e;
+  background: var(--text);
+  color: var(--bg);
 }
 
 @media (max-width: 900px) {

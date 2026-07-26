@@ -9,14 +9,37 @@ const FILTERS = ["All", ...getAllCollections()];
 
 export default function Gallery() {
   const [activeFilter, setActiveFilter] = useState("All");
+  const [startIndex, setStartIndex] = useState(0);
 
   const items = useMemo(() => {
     const filtered =
       activeFilter === "All"
         ? data
         : data.filter((item) => item.collection === activeFilter);
+
     return [...filtered].sort((a, b) => a.title.localeCompare(b.title));
   }, [activeFilter]);
+
+  const visibleItems = items.slice(startIndex, startIndex + 4);
+
+  const handleNext = () => {
+    if (startIndex + 4 < items.length) {
+      setStartIndex(startIndex + 4);
+    }
+  };
+
+  const handlePrev = () => {
+    if (startIndex - 4 >= 0) {
+      setStartIndex(startIndex - 4);
+    } else {
+      setStartIndex(0);
+    }
+  };
+
+  const handleFilterChange = (filter) => {
+    setActiveFilter(filter);
+    setStartIndex(0);
+  };
 
   return (
     <div className="gallery-page">
@@ -26,8 +49,8 @@ export default function Gallery() {
         <p className="gallery-kicker">The Collection</p>
         <h1>Gallery</h1>
         <p className="gallery-intro">
-          Original paintings and Carrot Card works by Ricky Salim — each
-          piece paired with the prophetic word it carries.
+          Original paintings and Carrot Card works by Ricky Salim — each piece
+          paired with the prophetic word it carries.
         </p>
 
         <div className="gallery-filters">
@@ -37,7 +60,7 @@ export default function Gallery() {
               className={`filter-pill ${
                 activeFilter === filter ? "active" : ""
               }`}
-              onClick={() => setActiveFilter(filter)}
+              onClick={() => handleFilterChange(filter)}
             >
               {filter}
             </button>
@@ -45,27 +68,50 @@ export default function Gallery() {
         </div>
       </section>
 
-      <section className="gallery-grid">
-        {items.map((item) => (
-          <Link
-            to={`/artwork/${item.id}`}
-            className="gallery-card"
-            key={item.id}
+      <section className="gallery-carousel-section">
+        {items.length > 4 && (
+          <button
+            className="gallery-arrow gallery-arrow-left"
+            onClick={handlePrev}
+            disabled={startIndex === 0}
           >
-            <div className="gallery-image-wrap">
-              <img
-                src={getImageSrc(item)}
-                alt={item.title}
-                loading="lazy"
-                className="gallery-image"
-              />
-            </div>
-            <div className="gallery-card-body">
-              <h3>{item.title}</h3>
-              <p>{item.collection}</p>
-            </div>
-          </Link>
-        ))}
+            ‹
+          </button>
+        )}
+
+        <div className="gallery-grid">
+          {visibleItems.map((item) => (
+            <Link
+              to={`/artwork/${item.id}`}
+              className="gallery-card"
+              key={item.id}
+            >
+              <div className="gallery-image-wrap">
+                <img
+                  src={getImageSrc(item)}
+                  alt={item.title}
+                  loading="lazy"
+                  className="gallery-image"
+                />
+              </div>
+
+              <div className="gallery-card-body">
+                <h3>{item.title}</h3>
+                <p>{item.collection}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {items.length > 4 && (
+          <button
+            className="gallery-arrow gallery-arrow-right"
+            onClick={handleNext}
+            disabled={startIndex + 4 >= items.length}
+          >
+            ›
+          </button>
+        )}
       </section>
 
       {items.length === 0 && (

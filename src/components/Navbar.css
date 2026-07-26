@@ -5,14 +5,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 42px;
-  background: rgba(24, 24, 24, 0.88);
+  padding: 22px 42px;
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border);
 }
 
 .site-logo a {
-  color: #f4f1ea;
+  color: var(--text);
   text-decoration: none;
   font-size: 1.2rem;
   letter-spacing: 0.04em;
@@ -25,14 +25,14 @@
 }
 
 .site-nav-links a {
-  color: #d8d0c2;
+  color: var(--text-muted);
   text-decoration: none;
   font-size: 0.98rem;
   transition: color 0.2s ease;
 }
 
 .site-nav-links a:hover {
-  color: #c9a96e;
+  color: var(--accent);
 }
 
 @media (max-width: 768px) {

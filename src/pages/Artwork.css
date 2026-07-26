@@ -1,35 +1,35 @@
 .artwork-page {
   min-height: 100vh;
   width: 100%;
-  background: #181818;
-  color: #f4f1ea;
+  background: var(--bg);
+  color: var(--text);
   font-family: Georgia, "Times New Roman", serif;
   padding-bottom: 100px;
 }
 
 .artwork-breadcrumb {
-  max-width: 1300px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 32px 60px 0;
+  padding: 36px 60px 0;
 }
 
 .artwork-breadcrumb a {
-  color: #bfb6a8;
+  color: var(--text-muted);
   font-size: 0.92rem;
   transition: color 0.2s ease;
 }
 
 .artwork-breadcrumb a:hover {
-  color: #c9a96e;
+  color: var(--accent);
 }
 
 .artwork-main {
-  max-width: 1300px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 28px 60px 0;
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  gap: 64px;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 72px;
   align-items: start;
 }
 
@@ -40,12 +40,11 @@
 
 .artwork-image {
   width: 100%;
-  border-radius: 14px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+  display: block;
 }
 
 .artwork-kicker {
-  color: #c9a96e;
+  color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-size: 0.78rem;
@@ -59,7 +58,7 @@
 }
 
 .artwork-artist {
-  color: #d8d0c2;
+  color: var(--text-muted);
   font-style: italic;
   margin: 0 0 28px;
 }
@@ -70,8 +69,8 @@
   gap: 14px 24px;
   margin: 0 0 28px;
   padding: 22px 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
 .artwork-detail-row {
@@ -81,7 +80,7 @@
 }
 
 .artwork-detail-row dt {
-  color: #8a8278;
+  color: var(--text-faint);
   font-size: 0.76rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -89,12 +88,12 @@
 
 .artwork-detail-row dd {
   margin: 0;
-  color: #f4f1ea;
+  color: var(--text);
   font-size: 0.98rem;
 }
 
 .artwork-description {
-  color: #ddd6c9;
+  color: var(--text-muted);
   line-height: 1.8;
   font-size: 1.05rem;
   font-style: italic;
@@ -103,7 +102,7 @@
 }
 
 .artwork-section-label {
-  color: #c9a96e;
+  color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-size: 0.78rem;
@@ -113,11 +112,11 @@
 .artwork-prophetic {
   margin: 0 0 24px;
   padding: 4px 0 4px 22px;
-  border-left: 2px solid #c9a96e;
+  border-left: 2px solid var(--text);
 }
 
 .artwork-prophetic-text {
-  color: #f4f1ea;
+  color: var(--text);
   line-height: 1.9;
   font-size: 1.08rem;
   white-space: pre-line;
@@ -125,7 +124,7 @@
 }
 
 .artwork-scripture {
-  color: #c9a96e;
+  color: var(--accent);
   font-size: 0.95rem;
   letter-spacing: 0.02em;
   margin: 0 0 36px;
@@ -133,42 +132,46 @@
 
 .artwork-actions {
   display: flex;
-  gap: 16px;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
 .btn {
   display: inline-block;
-  padding: 12px 22px;
-  border-radius: 999px;
+  padding: 12px 26px;
+  border-radius: 0;
   text-decoration: none;
-  font-size: 0.96rem;
+  font-size: 0.92rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   transition: all 0.2s ease;
 }
 
 .btn-primary {
-  background: #c9a96e;
-  color: #181818;
+  background: var(--text);
+  color: var(--bg);
   font-weight: 600;
+  border: 1px solid var(--text);
 }
 
 .btn-primary:hover {
-  background: #d8b980;
+  background: var(--bg);
+  color: var(--text);
 }
 
 .btn-secondary {
-  border: 1px solid rgba(244, 241, 234, 0.35);
-  color: #f4f1ea;
+  border: 1px solid var(--border-strong);
+  color: var(--text);
 }
 
 .btn-secondary:hover {
-  border-color: #c9a96e;
-  color: #c9a96e;
+  background: var(--text);
+  color: var(--bg);
 }
 
 .artwork-related {
-  max-width: 1300px;
-  margin: 90px auto 0;
+  max-width: 1400px;
+  margin: 100px auto 0;
   padding: 0 60px;
 }
 
@@ -178,8 +181,8 @@
 
 .artwork-related-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 32px;
 }
 
 .related-card {
@@ -191,19 +194,18 @@
   width: 100%;
   aspect-ratio: 4 / 5;
   object-fit: cover;
-  border-radius: 12px;
-  margin-bottom: 10px;
-  transition: transform 0.25s ease;
+  margin-bottom: 12px;
+  transition: transform 0.4s ease;
 }
 
 .related-card:hover img {
-  transform: translateY(-4px);
+  transform: scale(1.03);
 }
 
 .related-card p {
   margin: 0;
   font-size: 0.92rem;
-  color: #d8d0c2;
+  color: var(--text-muted);
 }
 
 .artwork-not-found {
@@ -214,7 +216,7 @@
 }
 
 .artwork-not-found p {
-  color: #bfb6a8;
+  color: var(--text-muted);
   margin: 12px 0 28px;
 }
 
