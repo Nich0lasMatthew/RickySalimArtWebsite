@@ -30,7 +30,7 @@ dist-ssr
 .env
 .env.*
 
-# AI agent tooling
+# AI agent tooling (optional)
 .agents
 .claude
 skills-lock.json
