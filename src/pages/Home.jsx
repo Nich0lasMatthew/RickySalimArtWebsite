@@ -47,7 +47,7 @@ export default function Home() {
             <Link to={`/artwork/${item.id}`} className="featured-card" key={item.id}>
               <img
                 src={getImageSrc(item)}
-                alt={item.title}
+              alt={item.title}
                 className="featured-image"
               />
               <div className="featured-body">

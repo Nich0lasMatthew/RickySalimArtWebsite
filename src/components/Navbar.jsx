@@ -12,6 +12,7 @@ export default function Navbar() {
         <Link to="/gallery">Gallery</Link>
         <Link to="/about">About</Link>
         <Link to="/enquiry">Enquiry</Link>
+        <Link to="/carrot-cards">Carrot Cards</Link>
       </nav>
     </header>
   );
