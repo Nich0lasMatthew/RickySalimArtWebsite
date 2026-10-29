@@ -22,3 +22,15 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Firebase
+.firebase
+
+# Environment files
+.env
+.env.*
+
+# AI agent tooling
+.agents
+.claude
+skills-lock.json
