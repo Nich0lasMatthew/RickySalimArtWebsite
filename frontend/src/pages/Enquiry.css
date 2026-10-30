@@ -146,3 +146,39 @@
     padding: 32px 20px 0;
   }
 }
+
+.enquiry-field em.enquiry-error {
+  font-style: normal;
+}
+
+.enquiry-field input[aria-invalid="true"],
+.enquiry-field textarea[aria-invalid="true"] {
+  border-color: #a3341f;
+}
+
+.enquiry-error-banner {
+  background: #fbf1ee;
+  border: 1px solid #e6c3b8;
+  padding: 12px 14px;
+}
+
+.enquiry-honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.enquiry-success {
+  padding-top: 120px;
+}
+
+.enquiry-success-actions {
+  margin-top: 32px;
+}

@@ -31,9 +31,11 @@ async function request(path, { method = "GET", body, signal, fresh = false } = {
 
   const data = await res.json().catch(() => null);
   if (!res.ok) {
+    // No JSON back means we didn't reach our API at all (not deployed, asleep,
+    // or offline). Status 0 lets pages show a "can't reach the server" message.
     throw new ApiError(
       data?.error ?? `Request failed (${res.status})`,
-      res.status,
+      data ? res.status : 0,
       data?.fields
     );
   }
