@@ -1,9 +1,11 @@
 import { Router } from "express";
+import { validId } from "../validation.js";
 
 const asString = (value) => (typeof value === "string" ? value : undefined);
 
 export function artworksRouter(store) {
   const router = Router();
+  router.param("id", validId);
 
   // GET /api/artworks?collection=Carrot%20Cards&status=available
   router.get("/", async (req, res) => {

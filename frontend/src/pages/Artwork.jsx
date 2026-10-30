@@ -54,6 +54,7 @@ export default function Artwork() {
     artwork.size && { label: "Size", value: artwork.size },
     artwork.year && { label: "Year", value: artwork.year },
     artwork.collection && { label: "Collection", value: artwork.collection },
+    artwork.season && { label: "Season", value: `Season ${artwork.season}` },
     {
       label: "Price",
       value:
@@ -78,7 +79,7 @@ export default function Artwork() {
       <section className="artwork-main">
         <div className="artwork-image-col">
           <img
-            src={getImageSrc(artwork)}
+            src={getImageSrc(artwork, 1800)}
             alt={artwork.title}
             className="artwork-image"
           />
@@ -143,7 +144,7 @@ export default function Artwork() {
                 className="related-card"
                 key={item.id}
               >
-                <img src={getImageSrc(item)} alt={item.title} />
+                <img src={getImageSrc(item, 600)} alt={item.title} loading="lazy" />
                 <p>{item.title}</p>
               </Link>
             ))}

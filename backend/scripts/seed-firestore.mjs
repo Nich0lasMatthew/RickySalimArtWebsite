@@ -34,7 +34,8 @@ const siteUrl = (
 function toDoc(item, index) {
   // eslint-disable-next-line no-unused-vars
   const { source_pdf, source_page, notes, image_url: _url, ...rest } = item;
-  const imagePath = getLocalImagePath(item); // "/artworks/<folder>/<file>"
+  // Older entries have a local file; newer ones (e.g. Season 1 cards) only a hosted URL.
+  const imagePath = item.image_filename ? getLocalImagePath(item) : null;
   const rawPrice = String(item.price ?? "").replace(/[^0-9.]/g, "");
 
   return {
@@ -42,7 +43,8 @@ function toDoc(item, index) {
     price: rawPrice ? Number(rawPrice) : null, // AUD, or null until priced
     status: item.available === "Yes" ? "available" : "sold", // available | reserved | sold
     image_path: imagePath,
-    image_url: item.image_url || siteUrl + encodeURI(imagePath),
+    image_url: item.image_url || (imagePath ? siteUrl + encodeURI(imagePath) : null),
+    season: item.season ?? null,
     sort_order: index,
   };
 }
@@ -58,7 +60,7 @@ for (const d of docs) {
   if (seen.has(d.id)) problems.push(`Duplicate id: ${d.id}`);
   seen.add(d.id);
   if (!d.title) problems.push(`Missing title: ${d.id}`);
-  if (d.image_path.includes("undefined"))
+  if (!d.image_url || d.image_url.includes("undefined"))
     problems.push(`Unknown collection "${d.collection}" or no image for: ${d.id}`);
 }
 if (problems.length) {

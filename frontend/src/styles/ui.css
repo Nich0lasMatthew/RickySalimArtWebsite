@@ -1,0 +1,124 @@
+/* ==================================================================
+   Shared UI: buttons and focus styles. Selectors start with :root so they
+   win over the older per-page copies whatever order the CSS loads in. Follows Apple's Human Interface Guidelines:
+   - one filled (prominent) button per group, others tinted
+   - at least 44px tall tap targets
+   - sentence-case labels, no shouting caps
+   - rounded "capsule" shape, gentle press feedback
+   - visible keyboard focus ring
+=================================================================== */
+
+:root {
+  --ui-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --radius-pill: 980px;
+  --tint: rgba(0, 0, 0, 0.06);
+  --tint-hover: rgba(0, 0, 0, 0.1);
+  --focus: #0071e3;
+}
+
+:root .btn,
+:root .acct-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  font-family: var(--ui-font);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  text-decoration: none;
+  line-height: 1.2;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.12s ease, opacity 0.2s ease;
+}
+
+:root .btn:active:not(:disabled),
+:root .acct-btn-outline:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+:root .btn:focus-visible,
+:root .acct-btn-outline:focus-visible,
+:root .filter-pill:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Filled: the one main action */
+:root .btn-primary,
+:root .btn-primary:hover {
+  background: var(--text);
+  color: var(--bg);
+  border: 0;
+}
+:root .btn-primary:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+/* Tinted: secondary actions */
+:root .btn-secondary,
+:root .btn-secondary:hover,
+:root .acct-btn-outline,
+:root .acct-btn-outline:hover {
+  background: var(--tint);
+  color: var(--text);
+  border: 0;
+}
+:root .btn-secondary:hover:not(:disabled),
+:root .acct-btn-outline:hover:not(:disabled) {
+  background: var(--tint-hover);
+}
+
+:root .btn:disabled,
+:root .acct-btn-outline:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* On dark imagery (home banner): light filled + translucent glass */
+:root .hero-dark .btn-primary,
+:root .hero-dark .btn-primary:hover {
+  background: #fff;
+  color: #1d1d1f;
+}
+:root .hero-dark .btn-secondary,
+:root .hero-dark .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+}
+:root .hero-dark .btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.26);
+}
+:root .hero-dark .btn:focus-visible {
+  outline-color: #fff;
+}
+
+/* Small buttons in dense admin lists still keep a 36px+ target */
+:root .admin-btn {
+  min-height: 36px;
+  padding: 0 16px;
+  font-size: 0.88rem;
+}
+
+/* Filter chips */
+:root .filter-pill {
+  min-height: 36px;
+  font-family: var(--ui-font);
+  text-transform: none;
+  letter-spacing: -0.01em;
+  font-size: 0.92rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root .btn,
+  :root .acct-btn-outline { transition: none; }
+}

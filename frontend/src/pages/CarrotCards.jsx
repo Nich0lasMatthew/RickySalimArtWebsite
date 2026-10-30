@@ -106,12 +106,27 @@ function loadImage(src) {
 
 export default function CarrotCards() {
   const { artworks } = useArtworks();
-  const cards = useMemo(
+  const [season, setSeason] = useState("all"); // "all" | 1 | 2 ...
+  const allCards = useMemo(
     () =>
       artworks
         .filter((a) => a.collection === "Carrot Cards")
-        .map((a) => ({ id: a.id, title: a.title, word: cleanWord(a.prophetic_word), image: getImageSrc(a) })),
+        .map((a) => ({
+          id: a.id,
+          title: a.title,
+          season: a.season ?? null,
+          word: cleanWord(a.prophetic_word),
+          image: getImageSrc(a, 1400),
+        })),
     [artworks]
+  );
+  const seasons = useMemo(
+    () => [...new Set(allCards.map((c) => c.season).filter(Boolean))].sort((a, b) => a - b),
+    [allCards]
+  );
+  const cards = useMemo(
+    () => (season === "all" ? allCards : allCards.filter((c) => c.season === season)),
+    [allCards, season]
   );
 
   const [pick, setPick] = useState(null); // index chosen by "Draw another"; null = today's card
@@ -123,6 +138,12 @@ export default function CarrotCards() {
   const currentIdx = count ? (pick ?? dayIndex(count)) % count : 0;
   const card = cards[currentIdx];
   const isToday = pick === null;
+
+  function chooseSeason(next) {
+    setSeason(next);
+    setPick(null);
+    setRevealed(false);
+  }
 
   function handleRevealToday() {
     setPick(null);
@@ -280,6 +301,21 @@ export default function CarrotCards() {
         </div>
 
         <div className="artwork-info-col">
+          {seasons.length > 1 && (
+            <div className="carrot-seasons" role="group" aria-label="Choose a deck">
+              {["all", ...seasons].map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  className={`filter-pill ${season === s ? "active" : ""}`}
+                  aria-pressed={season === s}
+                  onClick={() => chooseSeason(s)}
+                >
+                  {s === "all" ? "All seasons" : `Season ${s}`}
+                </button>
+              ))}
+            </div>
+          )}
           <p className="artwork-kicker">{isToday ? "Card of the Day" : "Your Card"}</p>
           <h1>{revealed && card ? card.title : "Waiting to be drawn"}</h1>
           <p className="artwork-artist">
@@ -292,8 +328,8 @@ export default function CarrotCards() {
               <dd>{revealed && card ? `${currentIdx + 1} of ${count}` : "—"}</dd>
             </div>
             <div className="artwork-detail-row">
-              <dt>Artist</dt>
-              <dd>Ricky B. Salim</dd>
+              <dt>Deck</dt>
+              <dd>{revealed && card?.season ? `Season ${card.season}` : "Carrot Cards"}</dd>
             </div>
           </dl>
 

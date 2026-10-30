@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ApiError, submitEnquiry } from "../api/client";
+import { codeErrors } from "../utils/validate";
 import Navbar from "../components/Navbar";
 import "./Enquiry.css";
 
@@ -23,6 +24,13 @@ export default function Enquiry() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    const problems = codeErrors(form, ["name", "message"]);
+    if (Object.keys(problems).length) {
+      setFieldErrors(problems);
+      setError("Please check the highlighted fields.");
+      setStatus("error");
+      return;
+    }
     setStatus("sending");
     setFieldErrors({});
     setError("");

@@ -17,9 +17,9 @@ export default function Home() {
 
   return (
     <div className="home-page">
-      <Navbar />
+      <Navbar overlay />
 
-      <section className="hero" style={heroStyle}>
+      <section className="hero hero-dark" style={heroStyle}>
         <div className="hero-overlay">
           <p className="hero-kicker">Art • Faith • Community</p>
           <h1>Ricky B. Salim</h1>
@@ -49,7 +49,7 @@ export default function Home() {
           {featured.map((item) => (
             <Link to={`/artwork/${item.id}`} className="featured-card" key={item.id}>
               <img
-                src={getImageSrc(item)}
+                src={getImageSrc(item, 1000)}
               alt={item.title}
                 className="featured-image"
               />

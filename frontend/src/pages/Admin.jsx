@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { fetchArtworksFresh, fetchEnquiries, setEnquiryHandled, updateArtwork } from "../api/client";
 import { clearArtworksCache } from "../hooks/useArtworks";
+import AdminArtworkForm from "./AdminArtworkForm";
 import { getImageSrc } from "../utils/artwork";
 import "./Account.css";
 import "./Admin.css";
@@ -55,11 +56,17 @@ function useLoad(loader) {
 function ArtworksAdmin() {
   const [{ data: artworks, error }, setState] = useLoad(fetchArtworksFresh);
   const [query, setQuery] = useState("");
+  const [editing, setEditing] = useState(null); // null | "new" | artwork
+  const [notice, setNotice] = useState("");
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     return (artworks ?? []).filter(
-      (a) => !q || a.title.toLowerCase().includes(q) || a.collection.toLowerCase().includes(q)
+      (a) =>
+        !q ||
+        a.title.toLowerCase().includes(q) ||
+        a.collection.toLowerCase().includes(q) ||
+        (a.season && `season ${a.season}`.includes(q))
     );
   }, [artworks, query]);
 
@@ -71,11 +78,42 @@ function ArtworksAdmin() {
     }));
   };
 
+  function onFormDone(artwork, what) {
+    clearArtworksCache();
+    setState((s) => {
+      const list = s.data ?? [];
+      if (what === "created") return { ...s, data: [...list, artwork] };
+      if (what === "deleted") return { ...s, data: list.filter((a) => a.id !== artwork.id) };
+      return { ...s, data: list.map((a) => (a.id === artwork.id ? artwork : a)) };
+    });
+    setEditing(null);
+    setNotice(`“${artwork.title}” was ${what}.`);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   if (error) return <p className="acct-error">Couldn't load artworks: {error}</p>;
   if (!artworks) return <p className="acct-muted">Loading…</p>;
 
+  if (editing) {
+    return (
+      <AdminArtworkForm
+        key={editing === "new" ? "new" : editing.id}
+        artwork={editing === "new" ? null : editing}
+        onDone={onFormDone}
+        onCancel={() => setEditing(null)}
+      />
+    );
+  }
+
   return (
     <>
+      <div className="admin-toolbar">
+        <button type="button" className="btn btn-primary" onClick={() => { setNotice(""); setEditing("new"); }}>
+          Add painting
+        </button>
+        <span className="acct-small acct-muted">{artworks.length} artworks</span>
+      </div>
+      {notice && <p className="acct-notice" role="status">{notice}</p>}
       <input
         className="admin-search"
         type="search"
@@ -88,14 +126,14 @@ function ArtworksAdmin() {
       </p>
       <div className="admin-list">
         {visible.map((a) => (
-          <ArtworkRow key={a.id} artwork={a} onSaved={onSaved} />
+          <ArtworkRow key={a.id} artwork={a} onSaved={onSaved} onEdit={() => { setNotice(""); setEditing(a); }} />
         ))}
       </div>
     </>
   );
 }
 
-function ArtworkRow({ artwork, onSaved }) {
+function ArtworkRow({ artwork, onSaved, onEdit }) {
   const [price, setPrice] = useState(artwork.price ?? "");
   const [status, setStatus] = useState(artwork.status ?? "available");
   const [saving, setSaving] = useState(false);
@@ -124,10 +162,14 @@ function ArtworkRow({ artwork, onSaved }) {
 
   return (
     <div className="admin-row">
-      <img src={getImageSrc(artwork)} alt="" loading="lazy" className="admin-thumb" />
+      <img src={getImageSrc(artwork, 160)} alt="" loading="lazy" className="admin-thumb" />
       <div className="admin-row-main">
         <Link to={`/artwork/${artwork.id}`} className="admin-title">{artwork.title}</Link>
-        <p className="acct-small acct-muted">{artwork.collection}</p>
+        <p className="acct-small acct-muted">
+          {artwork.collection}
+          {artwork.season ? ` · Season ${artwork.season}` : ""}
+        </p>
+        <button type="button" className="acct-link acct-small" onClick={onEdit}>Edit details</button>
       </div>
       <label className="admin-inline">
         <span>A$</span>

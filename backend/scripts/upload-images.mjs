@@ -1,127 +1,124 @@
 #!/usr/bin/env node
-// Uploads every artwork image to Firebase Storage and saves its public URL
-// in Firestore as `image_url`. Run AFTER `pnpm seed`. From the backend folder:
+// One-off move of the images in frontend/public/artworks to Cloudinary.
+// From the backend folder, with CLOUDINARY_URL in .env:
 //
 //   pnpm upload-images --dry    list what would be uploaded
-//   pnpm upload-images          upload + update Firestore
+//   pnpm upload-images          upload, then point Firestore and the site at the new URLs
 //
-// Needs FIREBASE_STORAGE_BUCKET in .env (Firebase console > Storage, e.g.
-// "rickysalimart.firebasestorage.app"). Safe to re-run: files already in the
-// bucket are skipped and keep their existing URL. It reads images from
-// frontend/public/artworks, so keep that folder until this has run.
-//
-// URLs use Firebase download tokens, so they work even though storage.rules
-// blocks all direct browser access to the bucket.
+// Safe to re-run: images already on Cloudinary are kept, not duplicated.
+// Afterwards frontend/public/artworks is no longer used and can be removed.
 
-import { randomUUID } from "node:crypto";
 import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createCloudinaryStore, detectImageType } from "../src/images/cloudinary.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const imagesDir = path.join(root, "frontend/public/artworks");
 const catalogPath = path.join(root, "frontend/src/data/catalog_cleaned.json");
+const siteImagesPath = path.join(root, "frontend/src/data/site_images.json");
 const catalog = JSON.parse(readFileSync(catalogPath, "utf8"));
 const dryRun = process.argv.includes("--dry");
 
 const FOLDERS = { "Original Paintings": "originalpaintings", "Carrot Cards": "carrotcards" };
-const TYPES = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp" };
-
-// Every image file, plus which artwork (if any) it belongs to.
 const byPath = new Map(
-  catalog.map((a) => [`${FOLDERS[a.collection]}/${a.image_filename}`, a.id])
+  catalog.filter((a) => a.image_filename).map((a) => [`${FOLDERS[a.collection]}/${a.image_filename}`, a.id])
 );
+
 function walk(dir) {
   return readdirSync(dir).flatMap((name) => {
     const full = path.join(dir, name);
     return statSync(full).isDirectory() ? walk(full) : [full];
   });
 }
-const files = walk(imagesDir)
-  .filter((f) => TYPES[path.extname(f).toLowerCase()])
-  .map((full) => {
-    const rel = path.relative(imagesDir, full).split(path.sep).join("/");
-    return { full, rel, dest: `artworks/${rel}`, artworkId: byPath.get(rel) };
-  });
 
-const missing = [...byPath.keys()].filter((rel) => !files.some((f) => f.rel === rel));
-if (missing.length) {
-  console.error("Catalog images not found on disk:\n - " + missing.join("\n - "));
+let files;
+try {
+  files = walk(imagesDir)
+    .filter((f) => /\.(jpe?g|png|webp)$/i.test(f))
+    .map((full) => {
+      const rel = path.relative(imagesDir, full).split(path.sep).join("/");
+      return { full, rel, publicId: `artworks/${rel.replace(/\.[^.]+$/, "")}`, artworkId: byPath.get(rel) };
+    });
+} catch {
+  console.error(`No images found in ${imagesDir}. Nothing to upload.`);
   process.exit(1);
 }
+
+const missing = [...byPath.keys()].filter((rel) => !files.some((f) => f.rel === rel));
+if (missing.length) console.warn("Catalog images not on disk (skipped):\n - " + missing.join("\n - "));
 
 const totalMb = files.reduce((n, f) => n + statSync(f.full).size, 0) / 1e6;
 console.log(`${files.length} images, ${totalMb.toFixed(1)} MB`);
 if (dryRun) {
-  for (const f of files) console.log(` ${f.dest}  ->  ${f.artworkId ?? "(not an artwork, e.g. portrait)"}`);
+  for (const f of files) console.log(` ${f.publicId}  ->  ${f.artworkId ?? "(site image)"}`);
   process.exit(0);
 }
 
-if (!process.env.FIREBASE_STORAGE_BUCKET) {
-  console.error("Set FIREBASE_STORAGE_BUCKET in backend/.env first.");
+const images = createCloudinaryStore();
+if (!images) {
+  console.error("Add CLOUDINARY_URL to backend/.env first (Cloudinary dashboard > API Keys).");
   process.exit(1);
 }
 
-const { getBucket, getDb } = await import("../src/firebase.js");
-const bucket = getBucket();
-const db = getDb();
-
-const publicUrl = (dest, token) =>
-  `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(dest)}?alt=media&token=${token}`;
-
 const urls = {};
-let uploaded = 0;
 for (const f of files) {
-  const file = bucket.file(f.dest);
-  const [exists] = await file.exists();
-  let token;
-  if (exists) {
-    const [meta] = await file.getMetadata();
-    token = meta.metadata?.firebaseStorageDownloadTokens?.split(",")[0];
+  const buf = readFileSync(f.full);
+  const contentType = detectImageType(buf);
+  if (!contentType) {
+    console.warn(`\nSkipping ${f.rel}: not a JPEG/PNG/WebP`);
+    continue;
   }
-  if (!token) {
-    token = randomUUID();
-    await bucket.upload(f.full, {
-      destination: f.dest,
-      metadata: {
-        contentType: TYPES[path.extname(f.full).toLowerCase()],
-        cacheControl: "public, max-age=31536000, immutable",
-        metadata: { firebaseStorageDownloadTokens: token },
-      },
-    });
-    uploaded++;
-    process.stdout.write(".");
-  }
-  urls[f.rel] = publicUrl(f.dest, token);
+  const { url } = await images.upload(buf, { contentType, publicId: f.publicId });
+  urls[f.rel] = url;
+  process.stdout.write(".");
 }
-console.log(`\nUploaded ${uploaded}, already there ${files.length - uploaded}.`);
+console.log(`\nUploaded ${Object.keys(urls).length} images to Cloudinary (${images.cloudName}).`);
 
-// Point each artwork at its hosted image.
+// Artworks whose image lives on another site (Season 1 cards on Beacons):
+// Cloudinary fetches them directly.
+const remote = catalog.filter(
+  (a) => !a.image_filename && typeof a.image_url === "string" && a.image_url.startsWith("https://cdn.beacons.ai/")
+);
+const remoteUrls = {};
+for (const a of remote) {
+  const folder = a.season ? `carrotcards/season-${a.season}` : "carrotcards";
+  const { url } = await images.upload(a.image_url, { publicId: `artworks/${folder}/${a.id}` });
+  remoteUrls[a.id] = url;
+  process.stdout.write("+");
+}
+if (remote.length) console.log(`\nCopied ${remote.length} images from Beacons.`);
+
+// Firestore: point each artwork at its hosted image.
+const { getDb } = await import("../src/firebase.js");
+const db = getDb();
 const batch = db.batch();
 let linked = 0;
 for (const f of files) {
-  if (!f.artworkId) continue;
-  batch.set(
-    db.collection("artworks").doc(f.artworkId),
-    { image_url: urls[f.rel], image_path: f.dest },
-    { merge: true }
-  );
+  if (!f.artworkId || !urls[f.rel]) continue;
+  batch.set(db.collection("artworks").doc(f.artworkId), { image_url: urls[f.rel], image_path: f.publicId }, { merge: true });
+  linked++;
+}
+for (const [id, url] of Object.entries(remoteUrls)) {
+  batch.set(db.collection("artworks").doc(id), { image_url: url }, { merge: true });
   linked++;
 }
 await batch.commit();
-console.log(`Linked ${linked} artworks to their Storage URLs.`);
+console.log(`Linked ${linked} artworks in Firestore.`);
 
-// The site bundles this catalog as a backup for when the API is unreachable,
-// so give it the hosted URLs too. After this, frontend/public/artworks can go.
+// The site's built-in backup catalog (used if the API is asleep or down).
 for (const item of catalog) {
   const url = urls[`${FOLDERS[item.collection]}/${item.image_filename}`];
   if (url) item.image_url = url;
+  if (remoteUrls[item.id]) item.image_url = remoteUrls[item.id];
 }
 writeFileSync(catalogPath, JSON.stringify(catalog, null, 2) + "\n");
-console.log("Wrote image_url into frontend/src/data/catalog_cleaned.json.");
 
-const other = files.filter((f) => !f.artworkId);
-if (other.length) {
-  console.log("\nOther images (use these URLs in the code if you need them):");
-  for (const f of other) console.log(` ${f.rel}: ${urls[f.rel]}`);
+// Images that aren't artworks (the portrait).
+const siteImages = {};
+for (const f of files) {
+  if (!f.artworkId && urls[f.rel]) siteImages[path.basename(f.rel).replace(/\.[^.]+$/, "")] = urls[f.rel];
 }
+writeFileSync(siteImagesPath, JSON.stringify(siteImages, null, 2) + "\n");
+console.log("Updated frontend/src/data/catalog_cleaned.json and site_images.json.");
+console.log("\nAll done. Check the site, then remove frontend/public/artworks.");

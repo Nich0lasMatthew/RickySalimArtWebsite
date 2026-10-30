@@ -7,5 +7,5 @@ const HERO_ARTWORK_ID = "words";
 export function useHeroStyle() {
   const { artworks } = useArtworks();
   const art = artworks.find((a) => a.id === HERO_ARTWORK_ID);
-  return art ? { "--hero-image": `url("${getImageSrc(art)}")` } : undefined;
+  return art ? { "--hero-image": `url("${getImageSrc(art, 2200)}")` } : undefined;
 }

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { PORTRAIT_URL } from "../config/images";
+import { sizedImage } from "../utils/artwork";
 import "./About.css";
 
 export default function About() {
@@ -11,7 +12,7 @@ export default function About() {
       <section className="about-main">
         <div className="about-photo-col">
           <img
-            src={PORTRAIT_URL}
+            src={sizedImage(PORTRAIT_URL, 1200)}
             alt="Ricky B. Salim"
             className="about-photo"
           />

@@ -144,7 +144,7 @@ export default function Gallery() {
             <Link to={`/artwork/${item.id}`} className="gallery-card" key={item.id}>
               <div className="gallery-image-wrap">
                 <img
-                  src={getImageSrc(item)}
+                  src={getImageSrc(item, 900)}
                   alt={item.title}
                   loading="lazy"
                   decoding="async"

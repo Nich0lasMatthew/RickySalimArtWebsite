@@ -2,12 +2,15 @@ import { Router } from "express";
 import { rateLimit } from "express-rate-limit";
 import { FieldValue } from "firebase-admin/firestore";
 import { z } from "zod";
+import { email, fieldErrors, safeText } from "../validation.js";
 
+// Every field must be text of the right shape: objects ({"$gt": ""}), arrays,
+// numbers, HTML/script and invisible characters are all rejected or stripped.
 const enquirySchema = z.object({
-  name: z.string().trim().min(1, "Please enter your name").max(100),
-  email: z.string().trim().email("Please enter a valid email").max(200),
-  message: z.string().trim().min(1, "Please write a message").max(2000),
-  artwork: z.string().trim().max(200).optional(),
+  name: safeText({ max: 100, min: 1, required: "Please enter your name" }),
+  email,
+  message: safeText({ max: 2000, min: 1, multiline: true, required: "Please write a message" }),
+  artwork: safeText({ max: 200 }).optional(),
 });
 
 export function enquiriesRouter({ db, limitPerHour = 5 }) {
@@ -33,12 +36,7 @@ export function enquiriesRouter({ db, limitPerHour = 5 }) {
 
     const parsed = enquirySchema.safeParse(body);
     if (!parsed.success) {
-      const fields = {};
-      for (const issue of parsed.error.issues) {
-        const key = String(issue.path[0] ?? "form");
-        (fields[key] ??= []).push(issue.message);
-      }
-      return res.status(400).json({ error: "Invalid enquiry", fields });
+      return res.status(400).json({ error: "Invalid enquiry", fields: fieldErrors(parsed.error) });
     }
 
     const { artwork, ...rest } = parsed.data;

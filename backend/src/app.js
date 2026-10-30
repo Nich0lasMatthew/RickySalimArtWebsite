@@ -16,6 +16,7 @@ import { createArtworkStore } from "./store/artworks.js";
 export function createApp({
   db,
   verifyToken,
+  imageStore = null,
   corsOrigins = [],
   enquiryLimitPerHour = 5,
   cacheTtlMs,
@@ -40,7 +41,7 @@ export function createApp({
   app.get("/api/health", (_req, res) => res.json({ ok: true }));
   app.use("/api/artworks", artworksRouter(store));
   app.use("/api/me", meRouter({ db }));
-  app.use("/api/admin", adminRouter({ db, store }));
+  app.use("/api/admin", adminRouter({ db, store, imageStore }));
   app.use(
     "/api/enquiries",
     enquiriesRouter({ db, limitPerHour: enquiryLimitPerHour })
@@ -54,7 +55,7 @@ export function createApp({
       return res.status(400).json({ error: "Invalid JSON body" });
     }
     if (err.type === "entity.too.large") {
-      return res.status(413).json({ error: "Request too large" });
+      return res.status(413).json({ error: "That's too large. Images must be under 10 MB." });
     }
     console.error(err);
     res.status(500).json({ error: "Something went wrong" });

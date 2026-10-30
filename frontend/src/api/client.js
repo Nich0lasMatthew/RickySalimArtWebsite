@@ -88,3 +88,25 @@ export async function fetchEnquiries(options) {
 export function setEnquiryHandled(id, handled) {
   return request(`/admin/enquiries/${encodeURIComponent(id)}`, { method: "PATCH", body: { handled } });
 }
+
+export async function createArtwork(fields) {
+  const data = await request("/admin/artworks", { method: "POST", body: fields });
+  return data.artwork;
+}
+
+export function deleteArtwork(id) {
+  return request(`/admin/artworks/${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+
+/** Sends an image file (Blob) to the API, which stores it on Cloudinary. Returns { url, width, height }. */
+export async function uploadImage(blob, name) {
+  const token = await getIdToken();
+  const res = await fetch(`${BASE}/api/admin/images?name=${encodeURIComponent(name || "artwork")}`, {
+    method: "POST",
+    headers: { "Content-Type": blob.type || "application/octet-stream", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    body: blob,
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new ApiError(data?.error ?? `Upload failed (${res.status})`, data ? res.status : 0);
+  return data;
+}

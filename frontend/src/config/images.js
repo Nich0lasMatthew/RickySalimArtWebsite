@@ -1,4 +1,5 @@
-// Images that aren't artworks. After running `pnpm upload-images`, paste the
-// printed portrait URL into frontend/.env.local as VITE_PORTRAIT_URL.
-export const PORTRAIT_URL =
-  import.meta.env.VITE_PORTRAIT_URL || "/artworks/ricky-portrait.jpg";
+import siteImages from "../data/site_images.json";
+
+// Images that aren't artworks. `pnpm upload-images` fills site_images.json
+// with their hosted URLs.
+export const PORTRAIT_URL = siteImages["ricky-portrait"] || "/artworks/ricky-portrait.jpg";
