@@ -1,0 +1,52 @@
+.admin-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 56px 24px 0;
+}
+
+.admin-tabs { display: flex; gap: 10px; margin-bottom: 28px; }
+
+.admin-search { width: 100%; max-width: 420px; margin-bottom: 8px; }
+
+.admin-list { border-top: 1px solid var(--border); margin-top: 16px; }
+
+.admin-row {
+  display: grid;
+  grid-template-columns: 64px 1fr 150px 130px 120px;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-thumb { width: 64px; height: 64px; object-fit: cover; background: var(--bg-soft); }
+
+.admin-row-main p { margin: 4px 0 0; }
+
+.admin-title { font-weight: 600; color: var(--text) !important; }
+
+.admin-inline { display: flex; align-items: center; gap: 6px; }
+.admin-inline input { width: 100%; min-width: 0; }
+
+.admin-save { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+
+.admin-btn { padding: 9px 16px; font-size: 0.8rem; }
+
+.admin-check { display: inline-flex; gap: 8px; align-items: center; }
+
+.admin-enquiry { padding: 20px 0; border-bottom: 1px solid var(--border); }
+.admin-enquiry header { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; }
+.admin-enquiry.is-handled { opacity: 0.6; }
+
+.admin-message { white-space: pre-wrap; line-height: 1.7; margin: 12px 0 16px; }
+
+@media (max-width: 760px) {
+  .admin-row {
+    grid-template-columns: 56px 1fr;
+    grid-template-areas: none;
+  }
+  .admin-thumb { width: 56px; height: 56px; }
+  .admin-inline,
+  .admin-row select,
+  .admin-save { grid-column: 1 / -1; }
+}

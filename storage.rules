@@ -1,0 +1,13 @@
+rules_version = '2';
+
+// Images are served through download-token URLs (written by
+// backend/scripts/upload-images.mjs), which work regardless of these rules.
+// Uploads only happen from the backend with the Admin SDK, which bypasses
+// rules. So direct browser access to the bucket is closed.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

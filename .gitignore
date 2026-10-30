@@ -34,3 +34,19 @@ dist-ssr
 .agents
 .claude
 skills-lock.json
+
+# Firebase
+.firebase
+
+# Environment files
+.env
+.env.*
+
+# Caches and tooling
+.vite
+.agents
+.claude
+skills-lock.json
+
+# Keep the templates
+!.env.example

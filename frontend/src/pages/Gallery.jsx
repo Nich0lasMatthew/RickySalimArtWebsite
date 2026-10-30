@@ -1,0 +1,123 @@
+import { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
+import { useArtworks } from "../hooks/useArtworks";
+import { getImageSrc, getAllCollections } from "../utils/artwork";
+import Navbar from "../components/Navbar";
+import "./Gallery.css";
+
+const FILTERS = ["All", ...getAllCollections()];
+
+export default function Gallery() {
+  const { artworks: data } = useArtworks();
+  const [activeFilter, setActiveFilter] = useState("All");
+  const [startIndex, setStartIndex] = useState(0);
+
+  const items = useMemo(() => {
+    const filtered =
+      activeFilter === "All"
+        ? data
+        : data.filter((item) => item.collection === activeFilter);
+
+    return [...filtered].sort((a, b) => a.title.localeCompare(b.title));
+  }, [data, activeFilter]);
+
+  const visibleItems = items.slice(startIndex, startIndex + 4);
+
+  const handleNext = () => {
+    if (startIndex + 4 < items.length) {
+      setStartIndex(startIndex + 4);
+    }
+  };
+
+  const handlePrev = () => {
+    if (startIndex - 4 >= 0) {
+      setStartIndex(startIndex - 4);
+    } else {
+      setStartIndex(0);
+    }
+  };
+
+  const handleFilterChange = (filter) => {
+    setActiveFilter(filter);
+    setStartIndex(0);
+  };
+
+  return (
+    <div className="gallery-page">
+      <Navbar />
+
+      <section className="gallery-header">
+        <p className="gallery-kicker">The Collection</p>
+        <h1>Gallery</h1>
+        <p className="gallery-intro">
+          Original paintings and Carrot Card works by Ricky Salim — each piece
+          paired with the prophetic word it carries.
+        </p>
+
+        <div className="gallery-filters">
+          {FILTERS.map((filter) => (
+            <button
+              key={filter}
+              className={`filter-pill ${
+                activeFilter === filter ? "active" : ""
+              }`}
+              onClick={() => handleFilterChange(filter)}
+            >
+              {filter}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="gallery-carousel-section">
+        {items.length > 4 && (
+          <button
+            className="gallery-arrow gallery-arrow-left"
+            onClick={handlePrev}
+            disabled={startIndex === 0}
+          >
+            ‹
+          </button>
+        )}
+
+        <div className="gallery-grid">
+          {visibleItems.map((item) => (
+            <Link
+              to={`/artwork/${item.id}`}
+              className="gallery-card"
+              key={item.id}
+            >
+              <div className="gallery-image-wrap">
+                <img
+                  src={getImageSrc(item)}
+                  alt={item.title}
+                  loading="lazy"
+                  className="gallery-image"
+                />
+              </div>
+
+              <div className="gallery-card-body">
+                <h3>{item.title}</h3>
+                <p>{item.collection}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {items.length > 4 && (
+          <button
+            className="gallery-arrow gallery-arrow-right"
+            onClick={handleNext}
+            disabled={startIndex + 4 >= items.length}
+          >
+            ›
+          </button>
+        )}
+      </section>
+
+      {items.length === 0 && (
+        <p className="gallery-empty">No works found in this collection.</p>
+      )}
+    </div>
+  );
+}
